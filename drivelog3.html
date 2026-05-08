@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Drivelog">
+<title>Drivelog</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --surface2: #f0f2f5;
+  --border: #e2e5eb;
+  --accent: #4f46e5;
+  --accent2: #7c3aed;
+  --green: #16a34a;
+  --red: #dc2626;
+  --text: #111827;
+  --muted: #6b7280;
+  --font: 'Inter', sans-serif;
+  --display: 'Syne', sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  min-height: 100dvh;
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+/* HEADER */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: max(16px, env(safe-area-inset-top)) 16px 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tabs {
+  display: flex;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.tab {
+  background: none;
+  border: none;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* VIEWS */
+.view { display: none; padding: 16px; }
+.view.active { display: block; }
+
+/* CARD */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.card-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+}
+
+/* FIELDS */
+.field { margin-bottom: 12px; }
+.field:last-child { margin-bottom: 0; }
+
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 500;
+  padding: 11px 13px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.15s;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--accent);
+  background: #fff;
+}
+
+.field textarea { resize: none; height: 72px; font-size: 14px; font-weight: 400; }
+
+.field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  padding-right: 34px;
+}
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* STATS ROW */
+.stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.stat-box {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+}
+
+.stat-val {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.stat-lbl {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-top: 2px;
+}
+
+/* DRAFT BANNER */
+.draft-bar {
+  background: #ede9fe;
+  border: 1px solid #c4b5fd;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.draft-bar button {
+  background: none;
+  border: none;
+  font-family: var(--font);
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+/* SAVE BTN */
+.btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 700;
+  padding: 15px;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+}
+
+.btn-primary:active { opacity: 0.88; transform: scale(0.99); }
+
+/* TRIP CARDS */
+.empty { text-align: center; color: var(--muted); font-size: 14px; padding: 60px 0; }
+
+.trip-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+
+.trip-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.trip-route {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+  padding-right: 8px;
+}
+
+.trip-pay {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--green);
+  white-space: nowrap;
+}
+
+.trip-meta {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.trip-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.trip-stat {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.trip-stat strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.trip-notes {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.trip-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.btn-sm {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.btn-sm.edit { color: var(--accent); }
+.btn-sm.del { color: var(--red); }
+
+/* EXPORT */
+.export-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.export-title {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.export-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.btn-export {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  padding: 11px;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.btn-export.primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none;
+  color: white;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.pending-info {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.pending-info strong { color: var(--accent); }
+
+.step { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; }
+.step-n {
+  background: var(--accent);
+  color: white;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 11px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.step-t { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.step-t strong { color: var(--text); }
+
+/* MODAL */
+.overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 200;
+  align-items: flex-end;
+}
+.overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  border-top: 1px solid var(--border);
+  padding: 20px;
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+  width: 100%;
+  max-height: 92dvh;
+  overflow-y: auto;
+}
+
+.modal-hdr {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px;
+}
+
+.modal-title { font-family: var(--display); font-size: 16px; font-weight: 700; }
+
+.modal-close {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 50%; color: var(--muted); font-size: 14px;
+  width: 30px; height: 30px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 30px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--text); color: white;
+  font-family: var(--display); font-weight: 700;
+  padding: 11px 22px; border-radius: 30px; font-size: 13px;
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  z-index: 300; white-space: nowrap; pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.ok { background: var(--green); }
+.toast.err { background: var(--red); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">⚡ Drivelog</div>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('log', this)">Log</button>
+    <button class="tab" onclick="showTab('history', this)">History</button>
+    <button class="tab" onclick="showTab('export', this)">Export</button>
+  </div>
+</div>
+
+<!-- LOG -->
+<div class="view active" id="view-log">
+  <div class="draft-bar" id="draft-bar">
+    📝 Draft saved
+    <button onclick="clearDraft()">Clear</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Trip Details</div>
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="f-date">
+    </div>
+    <div class="field">
+      <label>Route</label>
+      <select id="f-route">
+        <option value="">— Select route —</option>
+        <option value="Sac 12AM">Sac 12AM — Sacramento 12 AM</option>
+        <option value="Sac 8PM">Sac 8PM — Sacramento 8 PM</option>
+        <option value="Sac 2 1PM">Sac 2 1PM — Sacramento 1 PM</option>
+        <option value="Sac 2 1PM Mon">Sac 2 1PM Mon — Sacramento 1 PM (Mon Short)</option>
+        <option value="Uber">Uber</option>
+        <option value="Lyft">Lyft</option>
+        <option value="Bonus">Bonus</option>
+      </select>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Start Time</label>
+        <input type="time" id="f-start">
+      </div>
+      <div class="field">
+        <label>End Time</label>
+        <input type="time" id="f-end">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Mileage &amp; Pay</div>
+    <div class="row2">
+      <div class="field">
+        <label>Business Miles</label>
+        <input type="number" id="f-miles" placeholder="0.0" step="0.1" min="0">
+      </div>
+      <div class="field">
+        <label>Personal Miles</label>
+        <input type="number" id="f-personal" placeholder="0" step="0.1" min="0">
+      </div>
+    </div>
+    <div class="field">
+      <label>Pay ($)</label>
+      <input type="number" id="f-pay" placeholder="0.00" step="0.01" min="0">
+    </div>
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-val" id="c-hrs">—</div>
+        <div class="stat-lbl">Hours</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="c-pmi">—</div>
+        <div class="stat-lbl">$/Mile</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="c-phr">—</div>
+        <div class="stat-lbl">$/Hour</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Notes (optional)</div>
+    <div class="field">
+      <textarea id="f-notes" placeholder="e.g. Extra stop, shorter route…"></textarea>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="saveTrip()">Save Trip</button>
+</div>
+
+<!-- HISTORY -->
+<div class="view" id="view-history">
+  <div id="history-list"></div>
+</div>
+
+<!-- EXPORT -->
+<div class="view" id="view-export">
+  <div class="export-card">
+    <div class="export-title">Export to Excel</div>
+    <div class="pending-info" id="pending-info"></div>
+    <div class="export-desc">Download a CSV and run the <strong>ImportTrips</strong> macro in your XLSM file. Rows are appended — no duplicates.</div>
+    <button class="btn-export primary" onclick="exportCSV()">⬇ Download CSV</button>
+    <button class="btn-export" onclick="markExported()">✓ Mark all as exported</button>
+  </div>
+
+  <div class="export-card">
+    <div class="export-title">VBA Macro Setup (one time)</div>
+    <div class="step"><div class="step-n">1</div><div class="step-t">Open your XLSM → press <strong>Alt+F11</strong></div></div>
+    <div class="step"><div class="step-n">2</div><div class="step-t"><strong>Insert → Module</strong>, paste the macro code</div></div>
+    <div class="step"><div class="step-n">3</div><div class="step-t">Save. Run <strong>ImportTrips</strong> via Alt+F8 after each CSV export</div></div>
+    <button class="btn-export" onclick="downloadMacro()">⬇ Download macro.bas</button>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="overlay" id="edit-overlay">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">Edit Trip</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <input type="hidden" id="e-id">
+    <div class="field"><label>Date</label><input type="date" id="e-date"></div>
+    <div class="field">
+      <label>Route</label>
+      <select id="e-route">
+        <option value="Sac 12AM">Sac 12AM — Sacramento 12 AM</option>
+        <option value="Sac 8PM">Sac 8PM — Sacramento 8 PM</option>
+        <option value="Sac 2 1PM">Sac 2 1PM — Sacramento 1 PM</option>
+        <option value="Sac 2 1PM Mon">Sac 2 1PM Mon — Sacramento 1 PM (Mon Short)</option>
+        <option value="Uber">Uber</option>
+        <option value="Lyft">Lyft</option>
+        <option value="Bonus">Bonus</option>
+      </select>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Start Time</label><input type="time" id="e-start"></div>
+      <div class="field"><label>End Time</label><input type="time" id="e-end"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Business Miles</label><input type="number" id="e-miles" step="0.1" min="0"></div>
+      <div class="field"><label>Personal Miles</label><input type="number" id="e-personal" step="0.1" min="0"></div>
+    </div>
+    <div class="field"><label>Pay ($)</label><input type="number" id="e-pay" step="0.01" min="0"></div>
+    <div class="field"><label>Notes</label><textarea id="e-notes"></textarea></div>
+    <button class="btn-primary" onclick="saveEdit()">Save Changes</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORE = 'drivelog_v1';
+const DRAFT = 'drivelog_draft';
+
+const ROUTE_NAMES = {
+  'Sac 12AM': 'Sacramento 12 AM',
+  'Sac 8PM': 'Sacramento 8 PM',
+  'Sac 2 1PM': 'Sacramento 1 PM',
+  'Sac 2 1PM Mon': 'Sacramento 1 PM (Mon Short)',
+  'Uber': 'Uber',
+  'Lyft': 'Lyft',
+  'Bonus': 'Bonus'
+};
+
+const ROUTE_GROUP = {
+  'Sac 12AM': 'Medicine Delivery',
+  'Sac 8PM': 'Medicine Delivery',
+  'Sac 2 1PM': 'Medicine Delivery',
+  'Sac 2 1PM Mon': 'Medicine Delivery',
+  'Uber': 'Rideshare',
+  'Lyft': 'Rideshare',
+  'Bonus': 'Medicine Delivery'
+};
+
+// ── Storage ──────────────────────────────────────────────
+function getTrips() {
+  try { return JSON.parse(localStorage.getItem(STORE)) || []; }
+  catch { return []; }
+}
+
+function setTrips(arr) {
+  localStorage.setItem(STORE, JSON.stringify(arr));
+}
+
+// ── Helpers ───────────────────────────────────────────────
+function toDecimal(t) {
+  if (!t) return null;
+  const [h, m] = t.split(':').map(Number);
+  return h / 24 + m / 1440;
+}
+
+function diffHours(s, e) {
+  if (!s || !e) return null;
+  let sd = toDecimal(s), ed = toDecimal(e);
+  if (ed < sd) ed += 1;
+  return Math.round((ed - sd) * 24 * 100) / 100;
+}
+
+function toExcelDate(str) {
+  const d = new Date(str + 'T12:00:00');
+  const epoch = new Date(1899, 11, 30);
+  return Math.round((d - epoch) / 86400000);
+}
+
+function todayStr() {
+  return new Date().toLocaleDateString('en-CA');
+}
+
+// ── Computed ──────────────────────────────────────────────
+function recompute() {
+  const s = document.getElementById('f-start').value;
+  const e = document.getElementById('f-end').value;
+  const miles = parseFloat(document.getElementById('f-miles').value);
+  const pay = parseFloat(document.getElementById('f-pay').value);
+  const hrs = diffHours(s, e);
+
+  document.getElementById('c-hrs').textContent = hrs != null ? hrs.toFixed(2) : '—';
+  document.getElementById('c-pmi').textContent = (miles > 0 && pay > 0) ? (pay / miles).toFixed(3) : '—';
+  document.getElementById('c-phr').textContent = (hrs > 0 && pay > 0) ? (pay / hrs).toFixed(2) : '—';
+  saveDraft();
+}
+
+// ── Draft ─────────────────────────────────────────────────
+function saveDraft() {
+  const d = {
+    date: document.getElementById('f-date').value,
+    route: document.getElementById('f-route').value,
+    start: document.getElementById('f-start').value,
+    end: document.getElementById('f-end').value,
+    miles: document.getElementById('f-miles').value,
+    personal: document.getElementById('f-personal').value,
+    pay: document.getElementById('f-pay').value,
+    notes: document.getElementById('f-notes').value
+  };
+  if (d.route || d.start || d.miles || d.pay) {
+    localStorage.setItem(DRAFT, JSON.stringify(d));
+    document.getElementById('draft-bar').style.display = 'flex';
+  }
+}
+
+function loadDraft() {
+  try {
+    const d = JSON.parse(localStorage.getItem(DRAFT));
+    if (!d) return;
+    if (d.date) document.getElementById('f-date').value = d.date;
+    if (d.route) document.getElementById('f-route').value = d.route;
+    if (d.start) document.getElementById('f-start').value = d.start;
+    if (d.end) document.getElementById('f-end').value = d.end;
+    if (d.miles) document.getElementById('f-miles').value = d.miles;
+    if (d.personal) document.getElementById('f-personal').value = d.personal;
+    if (d.pay) document.getElementById('f-pay').value = d.pay;
+    if (d.notes) document.getElementById('f-notes').value = d.notes;
+    if (d.route || d.start || d.miles || d.pay) {
+      document.getElementById('draft-bar').style.display = 'flex';
+    }
+    recompute();
+  } catch(e) {}
+}
+
+function clearDraft() {
+  localStorage.removeItem(DRAFT);
+  document.getElementById('draft-bar').style.display = 'none';
+  ['f-route','f-start','f-end','f-miles','f-personal','f-pay','f-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-date').value = todayStr();
+  recompute();
+}
+
+// ── Save Trip ─────────────────────────────────────────────
+function saveTrip() {
+  const date = document.getElementById('f-date').value;
+  const route = document.getElementById('f-route').value;
+  const start = document.getElementById('f-start').value;
+  const end = document.getElementById('f-end').value;
+  const miles = document.getElementById('f-miles').value;
+  const personal = document.getElementById('f-personal').value;
+  const pay = document.getElementById('f-pay').value;
+  const notes = document.getElementById('f-notes').value.trim();
+
+  if (!date || !route || !miles || !pay) {
+    toast('Fill in all required fields', 'err'); return;
+  }
+
+  const trip = {
+    id: Date.now(),
+    date, route, start, end,
+    miles: parseFloat(miles),
+    personal: parseFloat(personal) || 0,
+    pay: parseFloat(pay),
+    notes,
+    hours: diffHours(start, end),
+    exported: false
+  };
+
+  const trips = getTrips();
+  trips.unshift(trip);
+  setTrips(trips);
+
+  // clear draft
+  localStorage.removeItem(DRAFT);
+  document.getElementById('draft-bar').style.display = 'none';
+  ['f-route','f-start','f-end','f-miles','f-personal','f-pay','f-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-date').value = todayStr();
+  recompute();
+
+  toast('Trip saved ✓', 'ok');
+}
+
+// ── History ───────────────────────────────────────────────
+function renderHistory() {
+  const trips = getTrips();
+  const el = document.getElementById('history-list');
+  if (!trips.length) {
+    el.innerHTML = '<div class="empty">No trips logged yet.</div>'; return;
+  }
+  el.innerHTML = trips.map(t => `
+    <div class="trip-card">
+      <div class="trip-head">
+        <div class="trip-route">${ROUTE_NAMES[t.route] || t.route}</div>
+        <div class="trip-pay">$${t.pay.toFixed(2)}</div>
+      </div>
+      <div class="trip-meta">${t.date}${t.start ? ' · ' + t.start + '–' + t.end : ''}${t.exported ? ' · <span style="color:var(--green)">exported</span>' : ''}</div>
+      <div class="trip-stats">
+        <div class="trip-stat"><strong>${t.miles}</strong> biz mi</div>
+        ${t.personal > 0 ? `<div class="trip-stat"><strong>${t.personal}</strong> pers mi</div>` : ''}
+        ${t.hours != null ? `<div class="trip-stat"><strong>${t.hours.toFixed(2)}</strong> hrs</div>` : ''}
+        ${t.miles > 0 ? `<div class="trip-stat"><strong>$${(t.pay/t.miles).toFixed(3)}</strong>/mi</div>` : ''}
+      </div>
+      ${t.notes ? `<div class="trip-notes">${t.notes}</div>` : ''}
+      <div class="trip-actions">
+        <button class="btn-sm edit" onclick="openEdit(${t.id})">✎ Edit</button>
+        <button class="btn-sm del" onclick="deleteTrip(${t.id})">✕ Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function deleteTrip(id) {
+  setTrips(getTrips().filter(t => t.id !== id));
+  renderHistory();
+  updatePending();
+}
+
+// ── Edit ──────────────────────────────────────────────────
+function openEdit(id) {
+  const t = getTrips().find(t => t.id === id);
+  if (!t) return;
+  document.getElementById('e-id').value = id;
+  document.getElementById('e-date').value = t.date;
+  document.getElementById('e-route').value = t.route;
+  document.getElementById('e-start').value = t.start || '';
+  document.getElementById('e-end').value = t.end || '';
+  document.getElementById('e-miles').value = t.miles;
+  document.getElementById('e-personal').value = t.personal || 0;
+  document.getElementById('e-pay').value = t.pay;
+  document.getElementById('e-notes').value = t.notes || '';
+  document.getElementById('edit-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('edit-overlay').classList.remove('open');
+}
+
+function saveEdit() {
+  const id = parseInt(document.getElementById('e-id').value);
+  const date = document.getElementById('e-date').value;
+  const route = document.getElementById('e-route').value;
+  const start = document.getElementById('e-start').value;
+  const end = document.getElementById('e-end').value;
+  const miles = parseFloat(document.getElementById('e-miles').value) || 0;
+  const personal = parseFloat(document.getElementById('e-personal').value) || 0;
+  const pay = parseFloat(document.getElementById('e-pay').value) || 0;
+  const notes = document.getElementById('e-notes').value.trim();
+
+  if (!date || !route || !miles || !pay) { toast('Fill required fields', 'err'); return; }
+
+  setTrips(getTrips().map(t => t.id === id
+    ? { ...t, date, route, start, end, miles, personal, pay, notes, hours: diffHours(start, end) }
+    : t
+  ));
+  closeModal();
+  renderHistory();
+  updatePending();
+  toast('Updated ✓', 'ok');
+}
+
+document.getElementById('edit-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('edit-overlay')) closeModal();
+});
+
+// ── Export ────────────────────────────────────────────────
+function updatePending() {
+  const n = getTrips().filter(t => !t.exported).length;
+  document.getElementById('pending-info').innerHTML = `<strong>${n}</strong> trip${n !== 1 ? 's' : ''} pending export`;
+}
+
+function exportCSV() {
+  const pending = getTrips().filter(t => !t.exported);
+  if (!pending.length) { toast('No pending trips', 'err'); return; }
+
+  const rows = [
+    ['TripDate','RouteCode','RouteName','RouteGroup','StartTime','EndTime','TotalHours','BusinessMiles','PersonalMiles','Pay','Notes']
+  ];
+
+  pending.forEach(t => {
+    rows.push([
+      toExcelDate(t.date),
+      t.route,
+      ROUTE_NAMES[t.route] || t.route,
+      ROUTE_GROUP[t.route] || '',
+      t.start ? toDecimal(t.start).toFixed(10) : '',
+      t.end ? toDecimal(t.end).toFixed(10) : '',
+      t.hours != null ? t.hours : '',
+      t.miles,
+      t.personal || 0,
+      t.pay,
+      (t.notes || '').replace(/,/g, ';')
+    ]);
+  });
+
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = `trips_${todayStr()}.csv`;
+  a.click();
+  toast(`Exported ${pending.length} trips`, 'ok');
+}
+
+function markExported() {
+  setTrips(getTrips().map(t => ({ ...t, exported: true })));
+  updatePending();
+  renderHistory();
+  toast('Marked as exported ✓', 'ok');
+}
+
+function downloadMacro() {
+  const code = `Sub ImportTrips()
+    Dim ws As Worksheet
+    Dim csvPath As String
+    Dim csvFile As Integer
+    Dim line As String
+    Dim fields() As String
+    Dim lastRow As Long
+
+    Set ws = ThisWorkbook.Sheets("Trips_DB")
+    csvPath = Application.GetOpenFilename("CSV Files (*.csv),*.csv", , "Select trips CSV")
+    If csvPath = "False" Then Exit Sub
+
+    lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+    csvFile = FreeFile
+    Open csvPath For Input As #csvFile
+    Line Input #csvFile, line ' skip header
+
+    Dim added As Integer : added = 0
+    Do While Not EOF(csvFile)
+        Line Input #csvFile, line
+        If Trim(line) = "" Then GoTo Skip
+        fields = Split(line, ",")
+        If UBound(fields) < 9 Then GoTo Skip
+        lastRow = lastRow + 1
+        ws.Cells(lastRow, 1).Value = CDbl(fields(0))
+        ws.Cells(lastRow, 1).NumberFormat = "m/d/yyyy"
+        ws.Cells(lastRow, 2).Value = Trim(fields(1))
+        ws.Cells(lastRow, 3).Value = Trim(fields(2))
+        ws.Cells(lastRow, 4).Value = Trim(fields(3))
+        If fields(4) <> "" Then ws.Cells(lastRow, 5).Value = CDbl(fields(4))
+        If fields(5) <> "" Then ws.Cells(lastRow, 6).Value = CDbl(fields(5))
+        If fields(6) <> "" Then ws.Cells(lastRow, 7).Value = CDbl(fields(6))
+        If fields(7) <> "" Then ws.Cells(lastRow, 8).Value = CDbl(fields(7))
+        If fields(8) <> "" Then ws.Cells(lastRow, 9).Value = CDbl(fields(8))
+        If fields(9) <> "" Then ws.Cells(lastRow, 15).Value = CDbl(fields(9))
+        If UBound(fields) >= 10 Then ws.Cells(lastRow, 19).Value = Trim(fields(10))
+        added = added + 1
+Skip:
+    Loop
+    Close #csvFile
+    MsgBox added & " trip(s) imported!", vbInformation, "Done"
+End Sub`;
+
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([code], { type: 'text/plain' }));
+  a.download = 'macro.bas';
+  a.click();
+}
+
+// ── Tabs ──────────────────────────────────────────────────
+function showTab(name, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'history') renderHistory();
+  if (name === 'export') updatePending();
+}
+
+// ── Toast ─────────────────────────────────────────────────
+function toast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast ' + (type || '');
+  setTimeout(() => el.classList.add('show'), 10);
+  setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+// ── Init ──────────────────────────────────────────────────
+document.getElementById('f-date').value = todayStr();
+
+['f-start','f-end','f-miles','f-pay'].forEach(id => {
+  document.getElementById(id).addEventListener('input', recompute);
+});
+
+['f-date','f-route','f-personal','f-notes'].forEach(id => {
+  document.getElementById(id).addEventListener('change', saveDraft);
+  document.getElementById(id).addEventListener('input', saveDraft);
+});
+
+loadDraft();
+updatePending();
+</script>
+</body>
+</html>
